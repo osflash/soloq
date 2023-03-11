@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  relationMode      = "prisma"
+}
+
+model Guild {
+  id         String   @id
+  adminId    String
+  verifiedId String
+  region     String
+  language   String
+  createAt   DateTime @default(now())
+
+  @@unique([id, adminId, verifiedId])
+  @@map("guilds")
+}

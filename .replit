@@ -1,0 +1,2 @@
+language = "typescript"
+run = "npm i && npx -p node@latest npx tsx ./src/index.ts"
