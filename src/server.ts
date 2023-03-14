@@ -47,6 +47,6 @@ app
 
       await client.login(token)
     } catch (err) {
-      console.error(onError(err))
+      console.error(err)
     }
   })
