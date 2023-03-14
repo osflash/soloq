@@ -1,10 +1,11 @@
 import { FastifyInstance } from 'fastify'
 
-import { prisma } from './services/prisma'
+import { client } from '~/discord'
+import { prisma } from '~/services/prisma'
 
 export const appRoutes = async (app: FastifyInstance) => {
   app.get('/', async () => {
-    return { status: false }
+    return { status: client.isReady() }
   })
 
   app.get('/guilds', async () => {
