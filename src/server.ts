@@ -44,8 +44,6 @@ app
       foundGuilds.map(guild => guilds.set(guild.id, guild))
       foundUsers.map(user => users.set(user.discordId, user))
 
-      console.log(token)
-
       await client.login(token)
     } catch (err) {
       console.error(err)
