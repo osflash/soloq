@@ -9,7 +9,6 @@ import { appRoutes } from './routes'
 import { env, guilds, users } from './config'
 import { client } from './discord'
 import { prisma } from './services/prisma'
-import { onError } from './errors'
 
 import { i18nextInit } from '~/lib/i18next'
 
