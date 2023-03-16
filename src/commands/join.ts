@@ -3,6 +3,7 @@ import {
   ChatInputCommandInteraction,
   DiscordAPIError,
   GuildMember,
+  GuildMemberRoleManager,
   SlashCommandBuilder,
   VoiceChannel
 } from 'discord.js'
@@ -32,11 +33,21 @@ export const joinCommand: ICommand = {
         )
       }
 
+      const roleSchema = z.custom<GuildMemberRoleManager>()
+
+      const roles = roleSchema.parse(interaction.member.roles)
+
+      if (!roles.cache.has(guild.verifiedId)) {
+        return interaction.editReply(
+          'Para utilizar este comando, é necessário que você verifique sua conta primeiro.'
+        )
+      }
+
       const user = users.get(userId)
 
       if (!user) {
         return interaction.editReply(
-          'Seu usuário não foi encontrado. Verifique se digitou corretamente e tente novamente, ou entre em contato com o administrador.'
+          'Seu usuário não foi encontrado. Por favor, verifique sua conta novamente.'
         )
       }
 
