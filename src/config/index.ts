@@ -9,7 +9,8 @@ export const env = {
   discord: {
     appId: process.env.DISCORD_APP_ID!,
     publicKey: process.env.DISCORD_PUBLIC_KEY!,
-    token: process.env.DISCORD_TOKEN!
+    token: process.env.DISCORD_TOKEN!,
+    appUrl: process.env.DISCORD_APP_URL!
   },
   port: process.env.PORT ? Number(process.env.PORT) : 3333
 }
