@@ -1,6 +1,7 @@
 import {
   AutocompleteInteraction,
   ChatInputCommandInteraction,
+  PermissionResolvable,
   SlashCommandBuilder
 } from 'discord.js'
 
@@ -11,4 +12,5 @@ export interface ICommand {
   execute: (interaction: ChatInputCommandInteraction) => void
   autocomplete?: (interaction: AutocompleteInteraction) => void
   cooldown?: number
+  permissions?: PermissionResolvable
 }

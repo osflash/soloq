@@ -7,10 +7,12 @@ import path from 'path'
 export const i18nextInit = () =>
   i18next.use(Backend).init({
     load: 'currentOnly',
-    lng: 'en-US',
-    fallbackLng: 'en-US',
+    lng: 'pt-BR',
+    fallbackLng: 'pt-BR',
     preload: ['en-US', 'pt-BR'],
     supportedLngs: ['en-US', 'pt-BR'], // Object.values(Locale)
+    defaultNS: 'common',
+    ns: ['common', 'command'],
     backend: {
       loadPath: path.join(__dirname, '../locales/{{lng}}/{{ns}}.json'),
       addPath: path.join(__dirname, '../locales/add/{{lng}}/{{ns}}')

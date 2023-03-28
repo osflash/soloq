@@ -1,115 +1,117 @@
-import { Guild } from '@prisma/client'
-import { Client, GatewayIntentBits, VoiceChannel } from 'discord.js'
+import { Client, GatewayIntentBits, REST } from 'discord.js'
+import i18next from 'i18next'
 import { z } from 'zod'
 
-import { commands, cooldowns, guilds } from '~/config'
+import { commands, cooldowns, env } from '~/config'
+import { errorHandler } from '~/handlers/errors'
+import { memberSchema, voiceSchema } from '~/zod'
 
 export const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildIntegrations,
-    GatewayIntentBits.GuildVoiceStates
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.GuildIntegrations
   ]
 })
 
-client.once('ready', c => {
+export const rest = new REST({ version: '10' }).setToken(env.discord.token)
+
+client.once('ready', async c => {
   console.log(`DISCORD Server running`)
 
-  commands.toJSON().map(command => {
-    return c.application.commands.create(command.data)
+  commands.toJSON().map(async cmd => {
+    await c.application.commands.create(cmd.data)
   })
-})
-
-client.on('interactionCreate', async interaction => {
-  if (!interaction.inGuild()) return
-
-  const userId = interaction.user.id
-
-  if (interaction.isChatInputCommand()) {
-    const command = commands.get(interaction.commandName)
-
-    if (!command) {
-      console.error(`No command matching ${interaction.commandName} was found.`)
-
-      return
-    }
-
-    try {
-      if (command.cooldown) {
-        const cooldownUntil = cooldowns.get(
-          `${interaction.commandId}:${userId}`
-        )
-
-        if (cooldownUntil && cooldownUntil > Date.now()) {
-          interaction.reply({
-            content: `Por favor, aguarde ${Math.ceil(
-              (cooldownUntil - Date.now()) / 1e3
-            )} segundos antes de utilizar este comando novamente!`,
-            ephemeral: true
-          })
-
-          return
-        }
-
-        cooldowns.set(
-          `${interaction.commandId}:${userId}`,
-          new Date().valueOf() + command.cooldown
-        )
-      }
-
-      command.execute(interaction)
-    } catch (error) {
-      const guild = guilds.get(interaction.guildId)
-
-      const content = guild
-        ? 'Ocorreu um erro ao executar este comando' // add i18next
-        : 'There was an error while executing this command'
-
-      if (interaction.replied || interaction.deferred) {
-        await interaction.followUp({ content, ephemeral: true })
-      } else {
-        await interaction.reply({ content, ephemeral: true })
-      }
-    }
-  } else if (interaction.isAutocomplete()) {
-    const command = commands.get(interaction.commandName)
-
-    if (!command) {
-      console.error(`No command matching ${interaction.commandName} was found.`)
-
-      return
-    }
-
-    if (!command.autocomplete) {
-      console.error(
-        `No autocomplete matching ${interaction.commandName} was found.`
-      )
-
-      return
-    }
-
-    try {
-      command.autocomplete(interaction)
-    } catch (error) {
-      console.error(error)
-    }
-  }
 })
 
 client.on('voiceStateUpdate', async voice => {
-  const voiceStateSchema = z.object({
-    channel: z.custom<VoiceChannel>(),
-    guild: z.custom<Guild>()
-  })
+  try {
+    const channel = voiceSchema.nullable().parse(voice.channel)
 
-  const { channel, guild } = voiceStateSchema.parse({
-    channel: voice.channel,
-    guild: guilds.get(voice.guild.id)
-  })
+    if (
+      channel &&
+      channel.members.size === 0 &&
+      channel.parentId === env.discord.parentId
+    ) {
+      await channel.delete()
+    }
+  } catch (err) {
+    //
+  }
+})
 
-  if (channel.parentId === guild.playingRoomId) {
-    if (channel.members.size !== 0) return
+client.on('interactionCreate', async interaction => {
+  if (!interaction.isChatInputCommand()) {
+    return
+  }
 
-    await channel.delete()
+  try {
+    i18next.changeLanguage(interaction.locale)
+
+    const now = Date.now()
+    const userId = interaction.user.id
+    const cooldownId = `${interaction.commandId}:${userId}`
+
+    const command = commands.get(interaction.commandName)
+
+    if (!command) {
+      throw new z.ZodError([
+        {
+          code: z.ZodIssueCode.custom,
+          message: 'not.command',
+          path: []
+        }
+      ])
+    }
+
+    if (command.cooldown) {
+      const cooldown = cooldowns.get(cooldownId)
+
+      if (cooldown && cooldown > now) {
+        const content = i18next.t('error.app.wait', {
+          seconds: Math.ceil((cooldown - now) / 1e3),
+          name: interaction.commandName
+        })
+
+        await interaction.reply({
+          content,
+          ephemeral: true
+        })
+
+        return
+      }
+
+      cooldowns.set(cooldownId, now + command.cooldown)
+    }
+
+    const { permissions } = command
+
+    if (permissions) {
+      const memberBot = await interaction.guild?.members.fetch({
+        user: interaction.client.user
+      })
+
+      const member = memberSchema.parse(memberBot)
+      const missing = member.permissions.missing(permissions)
+
+      if (missing.length) {
+        const issues = missing.map(permission => ({
+          code: z.ZodIssueCode.custom,
+          message: `error.permission.${permission}`,
+          path: [],
+          params: {
+            userId: member.user.id
+          }
+        }))
+
+        throw new z.ZodError(issues)
+      }
+    }
+
+    command.execute(interaction)
+  } catch (err) {
+    const content = errorHandler(err)
+
+    await interaction.reply({ content, ephemeral: true }).catch(console.error)
   }
 })

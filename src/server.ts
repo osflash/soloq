@@ -6,7 +6,7 @@ import fastifyStatic from '@fastify/static'
 import path from 'path'
 
 import { appRoutes } from './routes'
-import { env, guilds, users } from './config'
+import { env, users } from './config'
 import { client } from './discord'
 import { prisma } from './services/prisma'
 
@@ -38,11 +38,9 @@ app
 
       await i18nextInit()
 
-      const foundGuilds = await prisma.guild.findMany()
       const foundUsers = await prisma.user.findMany()
 
-      foundGuilds.map(guild => guilds.set(guild.id, guild))
-      foundUsers.map(user => users.set(user.discordId, user))
+      foundUsers.map(user => users.set(user.id, user))
 
       await client.login(token)
     } catch (err) {

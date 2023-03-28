@@ -3,7 +3,6 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 const main = async () => {
-  await prisma.guild.deleteMany()
   await prisma.user.deleteMany()
 }
 

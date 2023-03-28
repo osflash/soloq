@@ -1,0 +1,23 @@
+{
+  "force": {
+    "update": "conta atualizada com sucesso!",
+    "create": "conta verificada com sucesso!"
+  },
+  "join": {
+    "success": "Você foi movido para a sala da sua equipe!"
+  },
+  "verify": {
+    "link": "Clique aqui",
+    "embeds": [
+      {
+        "title": "Verificar",
+        "fields": [
+          {
+            "name": "Como posso verificar minha conta?",
+            "value": "para que o BOT verifique a sua conta Riot Games. É necessário ter uma conta vinculada à Riot Games associada à sua conta no Discord."
+          }
+        ]
+      }
+    ]
+  }
+}

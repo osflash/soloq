@@ -1,0 +1,66 @@
+{
+  "error": {
+    "unspecific": "Algo deu errado.",
+    "app": {
+      "config": "O bot não está configurado neste servidor. Por favor, contate o administrador para obter mais informações.",
+      "wait": "Por favor, aguarde {{seconds}} segundos antes de utilizar este comando novamente!"
+    },
+    "permission": {
+      "CreateInstantInvite": "",
+      "KickMembers": "",
+      "BanMembers": "",
+      "Administrator": "",
+      "ManageChannels": "",
+      "ManageGuild": "",
+      "AddReactions": "",
+      "ViewAuditLog": "",
+      "PrioritySpeaker": "",
+      "Stream": "",
+      "ViewChannel": "",
+      "SendMessages": "",
+      "SendTTSMessages": "",
+      "ManageMessages": "",
+      "EmbedLinks": "",
+      "AttachFiles": "",
+      "ReadMessageHistory": "",
+      "MentionEveryone": "",
+      "UseExternalEmojis": "",
+      "ViewGuildInsights": "",
+      "Connect": "",
+      "Speak": "",
+      "MuteMembers": "",
+      "DeafenMembers": "",
+      "MoveMembers": "<@{{params.userId}}> não tem permissão para mover os membros!",
+      "UseVAD": "",
+      "ChangeNickname": "",
+      "ManageNicknames": "",
+      "ManageRoles": "",
+      "ManageWebhooks": "",
+      "ManageEmojisAndStickers": "",
+      "UseApplicationCommands": "",
+      "RequestToSpeak": "",
+      "ManageEvents": "",
+      "ManageThreads": "",
+      "CreatePublicThreads": "",
+      "CreatePrivateThreads": "",
+      "UseExternalStickers": "",
+      "SendMessagesInThreads": "",
+      "UseEmbeddedActivities": "",
+      "ModerateMembers": ""
+    },
+    "not": {
+      "user": "Seu usuário não foi encontrado. Por favor, verifique sua conta novamente.",
+      "command": "Desculpe, não consegui encontrar o comando solicitado.",
+      "member": "Lamentamos, mas não conseguimos encontrar o membro solicitado."
+    },
+    "discord": {
+      "40032": "Você não está conectado a um canal de voz. Para ser movido para sua sala, é necessário estar em um canal de voz.",
+      "50013": "O BOT não tem permissão para executar essa ação."
+    },
+    "twisted": {
+      "403": "Você não tem permissão para acessar este recurso!",
+      "404": "Você não está em partida!",
+      "429": "Desculpe, excedeu o limite de solicitações. Tente novamente mais tarde."
+    }
+  }
+}

@@ -3,33 +3,18 @@ generator client {
 }
 
 datasource db {
-  provider          = "mysql"
-  url               = env("DATABASE_URL")
-  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
-  relationMode      = "prisma"
-}
-
-model Guild {
-  id            String   @id
-  waitingRoomId String
-  playingRoomId String
-  verifiedId    String
-  region        String
-  createAt      DateTime @default(now())
-
-  @@unique([id, waitingRoomId, playingRoomId, verifiedId])
-  @@map("guilds")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model User {
-  discordId String   @id @unique
-  id        String   @db.VarChar(63)
-  accountId String   @db.VarChar(56)
-  name      String
-  puuid     String   @db.VarChar(78)
-  region    String
-  createAt  DateTime @default(now())
+  id         String @id @unique
+  summonerId String @db.VarChar(63)
+  puuid      String @db.VarChar(78)
 
-  @@unique([discordId, id, accountId, puuid])
+  createAt DateTime @default(now())
+
+  @@unique([id, summonerId, puuid])
   @@map("users")
 }

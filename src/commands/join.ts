@@ -1,63 +1,47 @@
 import {
   ChannelType,
   ChatInputCommandInteraction,
-  DiscordAPIError,
   GuildMember,
-  GuildMemberRoleManager,
   SlashCommandBuilder,
   VoiceChannel
 } from 'discord.js'
-import { Constants } from 'twisted'
-import { GenericError } from 'twisted/dist/errors/Generic.error'
+import { Regions } from 'twisted/dist/constants'
 import { ApiResponseDTO, CurrentGameInfoDTO } from 'twisted/dist/models-dto'
 import { z } from 'zod'
-import { guilds, users } from '../config'
-import { lolapi } from '../services/riotgames'
-import { ICommand } from '../types/commands'
+
+import { ICommand } from '~/types/commands'
+import { env, users } from '~/config'
+import { errorHandler } from '~/handlers/errors'
+import { lolapi } from '~/services/riotgames'
+import i18next from 'i18next'
 
 export const joinCommand: ICommand = {
   execute: async (interaction: ChatInputCommandInteraction) => {
     try {
-      if (!interaction.inGuild()) return
+      if (!interaction.inGuild() || !interaction.guild) return
 
       await interaction.deferReply({ ephemeral: true })
 
       const userId = interaction.user.id
-      const { guildId } = interaction
-
-      const guild = guilds.get(guildId)
-
-      if (!guild || !interaction.guild) {
-        return interaction.editReply(
-          'O bot não está configurado neste servidor. Por favor, contate o administrador para obter mais informações.'
-        )
-      }
-
-      const roleSchema = z.custom<GuildMemberRoleManager>()
-
-      const roles = roleSchema.parse(interaction.member.roles)
-
-      if (!roles.cache.has(guild.verifiedId)) {
-        return interaction.editReply(
-          'Para utilizar este comando, é necessário que você verifique sua conta primeiro.'
-        )
-      }
 
       const user = users.get(userId)
 
       if (!user) {
-        return interaction.editReply(
-          'Seu usuário não foi encontrado. Por favor, verifique sua conta novamente.'
-        )
+        throw new z.ZodError([
+          {
+            code: z.ZodIssueCode.custom,
+            message: 'not.user',
+            path: []
+          }
+        ])
       }
-
-      const regionSchema = z.nativeEnum(Constants.Regions)
-
-      const region = regionSchema.parse(user.region)
 
       const activeGameSchema = z.custom<ApiResponseDTO<CurrentGameInfoDTO>>()
 
-      const activeGame = await lolapi.Spectator.activeGame(user.id, region)
+      const activeGame = await lolapi.Spectator.activeGame(
+        user.summonerId,
+        Regions.BRAZIL
+      )
 
       const {
         response: { gameId, participants }
@@ -87,7 +71,7 @@ export const joinCommand: ICommand = {
         const newChannel = await interaction.guild.channels.create({
           name,
           type: ChannelType.GuildVoice,
-          parent: guild.playingRoomId,
+          parent: env.discord.parentId,
           userLimit: 5,
           permissionOverwrites: [
             {
@@ -116,23 +100,10 @@ export const joinCommand: ICommand = {
       await member.voice.setChannel(channelId)
 
       await interaction.editReply({
-        content: 'Você foi movido para a sala da sua equipe!'
+        content: i18next.t('command:join.success')
       })
     } catch (err) {
-      let content = 'Algo deu errado!'
-
-      if (err instanceof DiscordAPIError) {
-        if (err.code === 40032) {
-          content =
-            'Você não está conectado a um canal de voz. Para ser movido para sua sala, é necessário estar em um canal de voz.'
-        }
-      }
-
-      if (err instanceof GenericError) {
-        if (err.status === 404) {
-          content = 'Você não está em uma partida.'
-        }
-      }
+      const content = errorHandler(err)
 
       await interaction.editReply({
         content,
