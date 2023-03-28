@@ -1,6 +1,6 @@
 language = "typescript"
-run = "npm i && npx -p node@latest npx tsx ./src/index.ts"
-entrypoint = "index.ts"
+run = "npm i && npx -p node@latest npx tsx ./src/server.ts"
+entrypoint = "./src/server.ts"
 hidden = [".build", ".config"]
 compile = "./.config/build.sh"
 
