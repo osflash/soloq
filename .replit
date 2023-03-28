@@ -1,5 +1,5 @@
 language = "typescript"
-run = "npm i && npx prisma db push && npx -p node@latest npx tsx ./src/server.ts"
+run = "npm ci && npx prisma db push && npx -p node@latest npx tsx ./src/server.ts -y"
 entrypoint = "./src/server.ts"
 hidden = [".build", ".config"]
 compile = "./.config/build.sh"
