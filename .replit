@@ -1,2 +1,30 @@
 language = "typescript"
 run = "npm i && npx -p node@latest npx tsx ./src/index.ts"
+entrypoint = "index.ts"
+hidden = [".build", ".config"]
+compile = "./.config/build.sh"
+
+[languages]
+
+[languages.typescript]
+pattern = "**/{*.ts,*.js,*.tsx,*.jsx}"
+
+[languages.typescript.languageServer]
+start = "typescript-language-server --stdio"
+
+[packager]
+language = "nodejs"
+
+[packager.features]
+enabledForHosting = false
+packageSearch = true
+guessImports = true
+
+[nix]
+channel = "stable-22_11"
+
+[env]
+XDG_CONFIG_HOME = "/home/runner/.config"
+
+[gitHubImport]
+requiredFiles = [".replit", "replit.nix", ".config"]
