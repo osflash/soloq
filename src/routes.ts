@@ -18,7 +18,12 @@ import { discord } from './services/discord'
 
 export const appRoutes = async (app: FastifyInstance) => {
   app.get('/', async () => {
-    return { status: client.isReady(), appUrl: env.discord.appUrl }
+    const status = client.isReady()
+    const { appUrl } = env.discord
+
+    console.log(`BOT status: ${status} - uptime: ${client.uptime}`)
+
+    return { status, appUrl }
   })
 
   app.get('/discord', async (req, res) => {
